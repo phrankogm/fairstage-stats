@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Outreach Fairstage</title>
+<style>
+  :root {
+    --bg: #faf9f7; --panel: #ffffff; --fg: #1f1e1d; --fg-muted: #6b6a68; --line: #e7e5e2;
+    --ok: #15803d; --bad: #b91c1c; --chart: #2563eb; --chart-muted: #cbd5e1; --axis: #d6d3d1;
+    --popover: #ffffff; --shadow: 0 4px 16px rgba(0,0,0,.12);
+    --sans: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+    --serif: Georgia, "Times New Roman", serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #1c1b1a; --panel: #262524; --fg: #f2f1ef; --fg-muted: #a8a6a2; --line: #3a3836;
+      --ok: #4ade80; --bad: #f87171; --chart: #60a5fa; --chart-muted: #475569; --axis: #57534e;
+      --popover: #2f2e2c; --shadow: 0 4px 16px rgba(0,0,0,.5);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #1c1b1a; --panel: #262524; --fg: #f2f1ef; --fg-muted: #a8a6a2; --line: #3a3836;
+    --ok: #4ade80; --bad: #f87171; --chart: #60a5fa; --chart-muted: #475569; --axis: #57534e;
+    --popover: #2f2e2c; --shadow: 0 4px 16px rgba(0,0,0,.5);
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--fg); font-family: var(--sans); }
+  .of { max-width: 1120px; margin: 0 auto; padding: 32px 16px 48px; display: flex; flex-direction: column; gap: 32px; }
+  .of h1 { font-family: var(--serif); font-weight: 400; font-size: 2rem; margin: 0; }
+  .of .lede { margin: 8px 0 0; color: var(--fg-muted); font-size: 1rem; line-height: 1.5; max-width: 70ch; }
+  .of .lede b, .of .note b { color: var(--fg); font-weight: 600; }
+  .of .stamp { margin: 8px 0 0; color: var(--fg-muted); font-size: .8rem; }
+  .of h2 { font-size: 1.1rem; font-weight: 600; margin: 0; }
+  .of .note { margin: 4px 0 16px; color: var(--fg-muted); font-size: .8rem; line-height: 1.4; }
+  .of .funnel { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 9rem), 1fr)); gap: 12px; }
+  .of .tile { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px; display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+  .of .tile .lbl { font-size: .8rem; color: var(--fg-muted); }
+  .of .tile .num { font-family: var(--serif); font-size: 2rem; font-variant-numeric: tabular-nums; }
+  .of .tile .sub { font-size: .8rem; color: var(--fg-muted); font-variant-numeric: tabular-nums; }
+  .of .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 26rem), 1fr)); gap: 12px; }
+  .of .card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 18px; min-width: 0; }
+  .of .tbl { overflow-x: auto; max-height: 26rem; overflow-y: auto; }
+  .of table { width: 100%; border-collapse: collapse; font-size: .8rem; font-variant-numeric: tabular-nums; }
+  .of th { text-align: left; font-weight: 600; color: var(--fg-muted); border-bottom: 1px solid var(--line); padding: 6px 10px 6px 0; position: sticky; top: 0; background: var(--panel); }
+  .of td { padding: 6px 10px 6px 0; border-bottom: 1px solid var(--line); vertical-align: top; }
+  .of th.n, .of td.n { text-align: right; white-space: nowrap; }
+  .of td .bar { display: inline-block; height: .5rem; border-radius: 2px; background: var(--chart-muted); margin-left: 6px; vertical-align: middle; }
+  .of td .bar.hot { background: var(--ok); }
+  .of td .bar.bad { background: var(--bad); }
+  .of .chart { min-height: 15rem; position: relative; }
+  .of .tip { position: absolute; pointer-events: none; background: var(--popover); border: 1px solid var(--line); border-radius: 8px; box-shadow: var(--shadow); padding: 6px 10px; font-size: .8rem; }
+  .of .err { color: var(--bad); }
+</style>
+</head>
+<body>
+<div class="of">
+  <header>
+    <h1>Outreach Fairstage</h1>
+    <p class="lede">Desde julho, <b data-draw="k-enviados">—</b> e-mails frios saíram. <b data-draw="k-bounce">—</b> voltaram e <b data-draw="k-resp">—</b> dos que chegaram tiveram resposta. A origem de e-mail que mais responde é <b data-draw="k-best">—</b>, e a que mais volta é <b data-draw="k-worst">—</b>.</p>
+    <p class="stamp" id="stamp">Carregando os dados…</p>
+  </header>
+
+  <section id="funil" aria-label="Funil">
+    <h2>Funil</h2>
+    <p class="note">Todos os e-mails frios (1º contato), todas as verticais. Resposta conta só quem recebeu (enviados menos devoluções); resposta automática de férias não conta.</p>
+    <div class="funnel">
+      <div class="tile"><span class="lbl">Enviados</span><span class="num" data-draw="f-enviados">—</span><span class="sub">com follow-up: <span data-draw="f-followup">—</span></span></div>
+      <div class="tile"><span class="lbl">Entregues</span><span class="num" data-draw="f-entregues">—</span><span class="sub">devolução: <span data-draw="f-bounce">—</span></span></div>
+      <div class="tile"><span class="lbl">Responderam</span><span class="num" data-draw="f-respostas">—</span><span class="sub">dos entregues: <span data-draw="f-resp">—</span></span></div>
+      <div class="tile"><span class="lbl">Interessados</span><span class="num" data-draw="f-interessados">—</span><span class="sub">pediram material ou conversa</span></div>
+      <div class="tile"><span class="lbl">Reuniões</span><span class="num" data-draw="f-reunioes">—</span><span class="sub">na agenda</span></div>
+      <div class="tile"><span class="lbl">Ganhos</span><span class="num" data-draw="f-ganhos">—</span><span class="sub">clientes fechados</span></div>
+    </div>
+  </section>
+
+  <section id="cortes" aria-label="Cortes">
+    <h2>O que funciona melhor</h2>
+    <p class="note">Mesmas colunas em todos os cortes. Barra verde = taxa de resposta; barra vermelha = devolução. Grupos com menos de 10 envios são pouco confiáveis.</p>
+    <div class="grid">
+      <div class="card" id="c-abordagem">
+        <h2>Por abordagem</h2>
+        <p class="note">Fecho usado no 1º e-mail, pela época do envio.</p>
+        <div class="tbl"><table>
+          <thead><tr><th>Abordagem</th><th class="n">Enviados</th><th class="n">Devolução</th><th class="n">Resposta</th><th class="n">Interes.</th><th class="n">Reuniões</th></tr></thead>
+          <tbody data-draw="t-abordagem"></tbody>
+        </table></div>
+      </div>
+      <div class="card" id="c-vertical">
+        <h2>Por vertical</h2>
+        <p class="note">Que tipo de cliente responde mais.</p>
+        <div class="tbl"><table>
+          <thead><tr><th>Vertical</th><th class="n">Enviados</th><th class="n">Devolução</th><th class="n">Resposta</th><th class="n">Interes.</th><th class="n">Reuniões</th></tr></thead>
+          <tbody data-draw="t-vertical"></tbody>
+        </table></div>
+      </div>
+      <div class="card" id="c-origem">
+        <h2>Por origem do e-mail</h2>
+        <p class="note">Crédito pago (Clay, Vibe, Hunter) contra o que achamos na raça.</p>
+        <div class="tbl"><table>
+          <thead><tr><th>Origem</th><th>Tipo</th><th class="n">Enviados</th><th class="n">Devolução</th><th class="n">Resposta</th><th class="n">Interes.</th></tr></thead>
+          <tbody data-draw="t-origem"></tbody>
+        </table></div>
+      </div>
+      <div class="card" id="c-tier">
+        <h2>Por tier</h2>
+        <p class="note">A, B e C pela rubrica de qualificação; traço = sem tier.</p>
+        <div class="tbl"><table>
+          <thead><tr><th>Tier</th><th class="n">Enviados</th><th class="n">Devolução</th><th class="n">Resposta</th><th class="n">Interes.</th><th class="n">Reuniões</th></tr></thead>
+          <tbody data-draw="t-tier"></tbody>
+        </table></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="tempo" aria-label="Ao longo do tempo">
+    <div class="card">
+      <h2>Envios por mês</h2>
+      <p class="note">Barras = e-mails enviados no mês; o número embaixo é a taxa de resposta daquele mês.</p>
+      <div class="chart" data-draw="ch-mes"></div>
+    </div>
+  </section>
+
+  <section id="segmentos" aria-label="Segmentos">
+    <div class="card">
+      <h2>Por segmento</h2>
+      <p class="note">Segmentos com pelo menos 8 envios, do que mais responde pro que menos.</p>
+      <div class="tbl"><table>
+        <thead><tr><th>Segmento</th><th>Vertical</th><th class="n">Enviados</th><th class="n">Devolução</th><th class="n">Resposta</th><th class="n">Interes.</th></tr></thead>
+        <tbody data-draw="t-segmento"></tbody>
+      </table></div>
+    </div>
+  </section>
+
+  <section id="respostas" aria-label="Quem respondeu">
+    <div class="card">
+      <h2>Quem respondeu</h2>
+      <p class="note">Empresas com resposta, do estágio mais avançado pro menos.</p>
+      <div class="tbl"><table>
+        <thead><tr><th>Empresa</th><th>Vertical</th><th>Estágio</th><th>Tipo de resposta</th><th>Abordagem</th><th>Origem</th><th>Envio</th></tr></thead>
+        <tbody data-draw="t-respostas"></tbody>
+      </table></div>
+    </div>
+  </section>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<script>
+  // Small stand-in for the claude.ai dashboard runtime: computes every calc once from envios.json and draws.
+  (function () {
+    const store = {}, calcs = [], draws = [];
+    window.dash = {
+      colors: [getComputedStyle(document.documentElement).getPropertyValue('--chart').trim() || '#2563eb'],
+      calc: (id, spec) => calcs.push([id, spec]),
+      data: (id) => (id in store ? { status: 'ok', data: store[id] } : { status: 'loading', data: [] }),
+      draw: (name, fn) => draws.push([name, fn]),
+    };
+    const paint = () => draws.forEach(([name, fn]) => document.querySelectorAll(`[data-draw="${name}"]`).forEach((el) => fn(el)));
+    window.__run = (rows) => {
+      store.envios = rows;
+      calcs.forEach(([id, spec]) => { store[id] = spec.fn(...spec.inputs.map((i) => store[i])); });
+      paint();
+    };
+    let t;
+    window.addEventListener('resize', () => { clearTimeout(t); t = setTimeout(paint, 150); });
+  })();
+</script>
+<script>
+  const rate = (v) => {
+    const n = v.length, b = d3.sum(v, d => +d.bounce);
+    return { enviados: n, bounce_pct: n ? b / n : 0, resp_pct: n - b ? d3.sum(v, d => +d.respondeu) / (n - b) : 0,
+      interessados: d3.sum(v, d => +d.interessado), reunioes: d3.sum(v, d => +d.reuniao) };
+  };
+  dash.calc('funil', { inputs: ['envios'], fn: (envios) => {
+    const n = envios.length, b = d3.sum(envios, d => +d.bounce), r = d3.sum(envios, d => +d.respondeu);
+    return [{ enviados: n, entregues: n - b, bounce_pct: n ? b / n : 0, respostas: r, resp_pct: n - b ? r / (n - b) : 0,
+      interessados: d3.sum(envios, d => +d.interessado), reunioes: d3.sum(envios, d => +d.reuniao),
+      ganhos: d3.sum(envios, d => +d.ganho), followup: d3.sum(envios, d => +d.followup) }];
+  } });
+  dash.calc('por_origem', { inputs: ['envios'], fn: (envios) => d3.rollups(envios, v => ({ grupo: v[0].origem_grupo, ...rate(v) }), d => d.origem)
+    .map(([origem, s]) => ({ origem, ...s })).sort((a, b) => b.enviados - a.enviados) });
+  dash.calc('por_abordagem', { inputs: ['envios'], fn: (envios) => d3.rollups(envios, rate, d => d.abordagem)
+    .map(([abordagem, s]) => ({ abordagem, ...s })).sort((a, b) => b.enviados - a.enviados) });
+  dash.calc('por_vertical', { inputs: ['envios'], fn: (envios) => d3.rollups(envios, rate, d => d.vertical)
+    .map(([vertical, s]) => ({ vertical, ...s })).sort((a, b) => b.enviados - a.enviados) });
+  dash.calc('por_tier', { inputs: ['envios'], fn: (envios) => d3.rollups(envios, rate, d => d.tier)
+    .map(([tier, s]) => ({ tier, ...s })).sort((a, b) => d3.ascending(a.tier, b.tier)) });
+  dash.calc('por_segmento', { inputs: ['envios'], fn: (envios) => d3.rollups(envios.filter(d => d.segmento && d.segmento !== '-'),
+    v => ({ vertical: v[0].vertical, ...rate(v) }), d => d.segmento)
+    .map(([segmento, s]) => ({ segmento, ...s })).filter(d => d.enviados >= 8).sort((a, b) => b.resp_pct - a.resp_pct) });
+  dash.calc('por_mes', { inputs: ['envios'], fn: (envios) => d3.rollups(envios.filter(d => d.mes && d.mes !== 'sem data'), rate, d => d.mes)
+    .map(([mes, s]) => ({ mes, ...s })).sort((a, b) => d3.ascending(a.mes, b.mes)) });
+  dash.calc('melhor_origem', { inputs: ['por_origem'], fn: (o) => o.filter(d => d.enviados >= 20 && d.origem !== 'Não registrado').sort((a, b) => b.resp_pct - a.resp_pct).slice(0, 1) });
+  dash.calc('pior_origem', { inputs: ['por_origem'], fn: (o) => o.filter(d => d.enviados >= 20).sort((a, b) => b.bounce_pct - a.bounce_pct).slice(0, 1) });
+  const ORDER = ['ganho', 'reunião', 'interessado', 'respondeu'];
+  dash.calc('respostas', { inputs: ['envios'], fn: (envios) => d3.rollups(envios.filter(d => +d.respondeu), v => {
+    const best = v.slice().sort((a, b) => (+b.ganho * 3 + +b.reuniao * 2 + +b.interessado) - (+a.ganho * 3 + +a.reuniao * 2 + +a.interessado))[0];
+    const estagio = +best.ganho ? 'ganho' : +best.reuniao ? 'reunião' : +best.interessado ? 'interessado' : 'respondeu';
+    return { vertical: best.vertical, estagio, resposta_tipo: best.resposta_tipo, abordagem: best.abordagem, origem: best.origem, data: best.data };
+  }, d => d.empresa).map(([empresa, s]) => ({ empresa, ...s }))
+    .sort((a, b) => ORDER.indexOf(a.estagio) - ORDER.indexOf(b.estagio) || d3.descending(a.data, b.data)) });
+</script>
+<script>
+  const fInt = d3.format(','), fPct = d3.format('.1%');
+  const one = (id, field, fmt) => (el) => {
+    const d = dash.data(id);
+    el.textContent = d.status === 'ok' && d.data.length ? fmt(d.data[0][field]) : '—';
+  };
+  [['k-enviados', 'funil', 'enviados', fInt], ['k-bounce', 'funil', 'bounce_pct', fPct], ['k-resp', 'funil', 'resp_pct', fPct],
+   ['k-best', 'melhor_origem', 'origem', String], ['k-worst', 'pior_origem', 'origem', String],
+   ['f-enviados', 'funil', 'enviados', fInt], ['f-followup', 'funil', 'followup', fInt], ['f-entregues', 'funil', 'entregues', fInt],
+   ['f-bounce', 'funil', 'bounce_pct', fPct], ['f-respostas', 'funil', 'respostas', fInt], ['f-resp', 'funil', 'resp_pct', fPct],
+   ['f-interessados', 'funil', 'interessados', fInt], ['f-reunioes', 'funil', 'reunioes', fInt], ['f-ganhos', 'funil', 'ganhos', fInt]]
+    .forEach(([name, id, field, fmt]) => dash.draw(name, one(id, field, fmt)));
+
+  const rateCell = (v, kind) => {
+    const td = document.createElement('td'); td.className = 'n';
+    td.append(document.createTextNode(fPct(v)));
+    const bar = document.createElement('span'); bar.className = 'bar ' + (kind === 'bad' ? 'bad' : 'hot');
+    bar.style.width = Math.max(1, Math.round(Math.min(v, kind === 'bad' ? 1 : 0.15) / (kind === 'bad' ? 1 : 0.15) * 40)) + 'px';
+    td.append(bar); return td;
+  };
+  const table = (calc, cols) => (tb) => {
+    const d = dash.data(calc);
+    tb.replaceChildren();
+    if (d.status !== 'ok') return;
+    for (const r of d.data) {
+      const tr = document.createElement('tr');
+      for (const [k, kind] of cols) {
+        if (kind === 'resp' || kind === 'bad') { tr.append(rateCell(+r[k], kind)); continue; }
+        const td = document.createElement('td');
+        if (kind === 'int') { td.className = 'n'; td.textContent = fInt(+r[k]); } else td.textContent = r[k] ?? '';
+        tr.append(td);
+      }
+      tb.append(tr);
+    }
+  };
+  const std = [['enviados', 'int'], ['bounce_pct', 'bad'], ['resp_pct', 'resp'], ['interessados', 'int']];
+  dash.draw('t-origem', table('por_origem', [['origem'], ['grupo'], ...std]));
+  dash.draw('t-abordagem', table('por_abordagem', [['abordagem'], ...std, ['reunioes', 'int']]));
+  dash.draw('t-vertical', table('por_vertical', [['vertical'], ...std, ['reunioes', 'int']]));
+  dash.draw('t-tier', table('por_tier', [['tier'], ...std, ['reunioes', 'int']]));
+  dash.draw('t-segmento', table('por_segmento', [['segmento'], ['vertical'], ...std]));
+  dash.draw('t-respostas', table('respostas', [['empresa'], ['vertical'], ['estagio'], ['resposta_tipo'], ['abordagem'], ['origem'], ['data']]));
+
+  dash.draw('ch-mes', (el) => {
+    const d = dash.data('por_mes');
+    el.replaceChildren();
+    if (d.status !== 'ok' || !d.data.length) return;
+    const rows = d.data, w = Math.max(280, el.clientWidth), h = 240, m = { t: 22, r: 8, b: 44, l: 8 };
+    const x = d3.scaleBand(rows.map(r => r.mes), [m.l, w - m.r]).padding(0.3);
+    const y = d3.scaleLinear([0, d3.max(rows, r => +r.enviados) || 1], [h - m.b, m.t]);
+    const svg = d3.select(el).append('svg').attr('width', '100%').attr('viewBox', `0 0 ${w} ${h}`).attr('role', 'img').attr('aria-label', 'Envios por mês');
+    svg.append('line').attr('x1', m.l).attr('x2', w - m.r).attr('y1', h - m.b).attr('y2', h - m.b).attr('stroke', 'var(--axis)');
+    const MESES = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
+    const fMes = (s) => `${MESES[+s.slice(5, 7) - 1]} ${s.slice(0, 4)}`;
+    const tip = d3.select(el).append('div').attr('class', 'tip').style('opacity', 0);
+    const bw = Math.min(32, x.bandwidth());
+    const g = svg.selectAll('g.b').data(rows).join('g').attr('class', 'b');
+    g.append('rect').attr('x', r => x(r.mes) + (x.bandwidth() - bw) / 2).attr('width', bw).attr('y', r => y(+r.enviados))
+      .attr('height', r => y(0) - y(+r.enviados)).attr('rx', 3).attr('fill', 'var(--chart)')
+      .on('pointerenter', (ev, r) => { tip.style('opacity', 1).text(`${fMes(r.mes)}: ${fInt(+r.enviados)} enviados, ${fPct(+r.resp_pct)} de resposta`); })
+      .on('pointermove', (ev) => { const [px, py] = d3.pointer(ev, el); tip.style('left', Math.max(0, Math.min(px + 12, el.clientWidth - 220)) + 'px').style('top', (py - 10) + 'px'); })
+      .on('pointerleave', () => tip.style('opacity', 0));
+    g.append('text').attr('x', r => x(r.mes) + x.bandwidth() / 2).attr('y', r => y(+r.enviados) - 6).attr('text-anchor', 'middle')
+      .attr('fill', 'var(--fg)').attr('font-size', 12).text(r => fInt(+r.enviados));
+    g.append('text').attr('x', r => x(r.mes) + x.bandwidth() / 2).attr('y', h - m.b + 16).attr('text-anchor', 'middle')
+      .attr('fill', 'var(--fg-muted)').attr('font-size', 11).text(r => fMes(r.mes));
+    g.append('text').attr('x', r => x(r.mes) + x.bandwidth() / 2).attr('y', h - m.b + 32).attr('text-anchor', 'middle')
+      .attr('fill', 'var(--ok)').attr('font-size', 11).text(r => fPct(+r.resp_pct));
+  });
+
+  const VERTICAL = { imobiliario: 'Imobiliário', hoteis: 'Hotéis', eventos: 'Eventos', beverages: 'Bebidas', moda: 'Moda',
+    concessionarias: 'Concessionárias', institucional: 'Institucional', loteamentos: 'Loteamentos', agencias: 'Agências' };
+  const stamp = document.getElementById('stamp');
+  fetch('envios.json', { cache: 'no-cache' })
+    .then((r) => {
+      const lm = r.headers.get('last-modified');
+      if (lm) stamp.textContent = 'Dados atualizados em ' + new Date(lm).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' }) + '.';
+      else stamp.textContent = '';
+      return r.json();
+    })
+    .then((rows) => { rows.forEach((d) => { d.vertical = VERTICAL[d.vertical] || d.vertical; }); window.__run(rows); })
+    .catch(() => { stamp.textContent = 'Não consegui carregar os dados (envios.json).'; stamp.classList.add('err'); });
+</script>
+</body>
+</html>
